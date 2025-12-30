@@ -19,6 +19,39 @@
   }
 }
 
+/* ここから追記 */
+@layer utilities {
+  .animate-toast-in {
+    animation: toast-in 0.3s ease-in-out forwards;
+  }
+  .animate-toast-out {
+    animation: toast-out 0.3s ease-in-out forwards;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+/* ここまで追記 */
+
 body {
   background: var(--background);
   color: var(--foreground);
