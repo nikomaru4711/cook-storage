@@ -1,11 +1,14 @@
-import { createClient } from '@/app/utils/supabase/client';
 import { List } from './features/components/List';
+import { getAllRecopes } from './features/recipe_crud.action';
 
-export default function Home() {
+export default async function Home() {
+  const recipes = await getAllRecopes();
+
   return (
     <div>
-      開発中
-      <List data={[]} />
+      <List data={recipes} />
+      <p>材料で検索</p>
+
     </div>
   );
 }
