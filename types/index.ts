@@ -27,3 +27,9 @@ export type ButtonElement = {
     text: string;
     buttonType: 'normal' | 'confirm' | 'delete';
 }
+
+export type ToastElement = {
+    type: 'success' | 'error' | 'info' | 'warning';
+    text: string;
+    showingtime: number;
+}
