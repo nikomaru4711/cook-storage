@@ -8,8 +8,9 @@ import { useState, useTransition } from 'react';
 import { Title } from './Title';
 import { Button} from './Button';
 import { useToast } from '../hooks/useToast';
+import { redirect } from 'next/navigation';
 
-export function List({data}: {data: Recipe[] | null}) {
+export function List({data}: {data: Recipe[]}) {
     const [isCreating, setIsCreating] = useState(false);
     const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
     const [isPending, startTransition] = useTransition();
@@ -24,6 +25,7 @@ export function List({data}: {data: Recipe[] | null}) {
                 return;
             }
             show('success', 'レシピが削除されました。', 4000);
+            redirect("/");
         });
     };
 
@@ -42,14 +44,13 @@ export function List({data}: {data: Recipe[] | null}) {
                 size="large"
                 isUnderline={true}
             />
-            {data === null ? (<p>レシピが存在しません。</p>
+            {data.length === 0 ? (<p>レシピが存在しません。</p>
             ) : (
             data.map((recipe) => (
                 // レシピのカード部分
                 <div key={recipe.id} className="recipe-item flex justify-between items-center p-4 border rounded-lg mb-4 shadow-sm">
                     <div className="recipe-content">
                         <h3 className="text-lg font-semibold">{recipe.name}</h3>
-                        <p className="text-gray-600">{recipe.ingredients}</p>
                         {recipe.url && <a href={recipe.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Recipe Link</a>}
                         <small className="text-gray-400">Created at: {new Date(recipe.created_at).toLocaleDateString()}</small>
                     </div>

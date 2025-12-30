@@ -5,10 +5,11 @@ export type Recipe = {
     name: string;
     url?: string | null;
     created_at: string;
+    ingredients?: string[] | null; // for backward compatibility, but will be removed
 }
 
 export type ingredient = {
-    id: string;
+    id: number;
     name: string;
 }
 

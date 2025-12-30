@@ -2,9 +2,12 @@
 'use client';
 
 import type { Recipe } from '@/../types';
-import { updateRecipe } from '../recipe_crud.action';
-import { useState, useTransition } from 'react';
+import { updateRecipe, getRecipeWithIngredients } from '../recipe_crud.action';
+import { getAllIngredients } from '../ingredient_crud.action';
+import { useState, useTransition, useEffect } from 'react';
 import { useToast } from '../hooks/useToast';
+import { ingredient } from '../../../../types/index';
+import { redirect } from 'next/navigation';
 
 interface RecipeEditModalProps {
     recipe: Recipe;
@@ -17,9 +20,31 @@ export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProp
     const [formData, setFormData] = useState({
         name: recipe.name,
         url: recipe.url || '',
-        ingredients: recipe.ingredients
+        ingredients: [] as ingredient[]
     });
+    const [allIngredients, setAllIngredients] = useState<ingredient[]>([]);
+    const [inputValue, setInputValue] = useState('');
     const {show} = useToast();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            // 既存の材料を取得
+            const recipeResult = await getRecipeWithIngredients(recipe.id);
+            if (recipeResult.data) {
+                const ings = recipeResult.data.recipe_ingredients.map((ri: any) => ri.ingredients);
+                setFormData(prev => ({ ...prev, ingredients: ings }));
+            }
+
+            // 全材料を取得
+            const allResult = await getAllIngredients();
+            if (allResult.data) {
+                setAllIngredients(allResult.data);
+            }
+        };
+        if (isOpen) {
+            fetchData();
+        }
+    }, [isOpen, recipe.id]);
 
     if (!isOpen) return null;
 
@@ -28,12 +53,7 @@ export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProp
         const form = new FormData();
         form.append('name', formData.name);
         form.append('url', formData.url);
-        if(formData.ingredients !== null){
-            formData.ingredients?.forEach((ingredient) => {
-                form.append('ingredients', ingredient)
-            });
-        }
-
+        form.append('ingredients', JSON.stringify(formData.ingredients));
 
         startTransition(async () => {
             const result = await updateRecipe(recipe.id, form);
@@ -43,13 +63,35 @@ export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProp
             }
             show('success', 'レシピが更新されました。', 4000);
             onClose();
-            // setFormData({ name: '', url: '', ingredients: '' });
+            redirect("/");
         });
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleAddIngredient = () => {
+        if (!inputValue.trim()) return;
+        const trimmed = inputValue.trim();
+        const existing = allIngredients.find(ing => ing.name.toLowerCase() === trimmed.toLowerCase());
+        const ing = existing || { id: Date.now(), name: trimmed };
+        if (!formData.ingredients.some(i => i.id === ing.id)) {
+            setFormData(prev => ({ ...prev, ingredients: [...prev.ingredients, ing] }));
+        }
+        setInputValue('');
+    };
+
+    const handleRemoveIngredient = (id: number) => {
+        setFormData(prev => ({ ...prev, ingredients: prev.ingredients.filter(i => i.id !== id) }));
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            handleAddIngredient();
+        }
     };
 
     return (
@@ -85,14 +127,28 @@ export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProp
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-2">材料</label>
-                        <textarea
-                            name="ingredients"
-                            value={formData.ingredients ?? ""}
-                            onChange={handleInputChange}
+                        <label className="block text-sm font-medium mb-2">材料(ひらがな入力)</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {formData.ingredients.map(ing => (
+                                <span key={ing.id} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center">
+                                    {ing.name}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveIngredient(ing.id)}
+                                        className="ml-1 text-blue-600 hover:text-blue-800"
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder="材料を入力してEnterまたは,で追加"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows={4}
-                            required
                         />
                     </div>
                     <div className="flex justify-end space-x-2">

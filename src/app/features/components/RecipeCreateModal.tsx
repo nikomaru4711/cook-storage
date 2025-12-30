@@ -1,7 +1,10 @@
 'use client';
 import { createRecipe } from '../recipe_crud.action';
-import { useState, useTransition } from 'react';
+import { getAllIngredients } from '../ingredient_crud.action';
+import { useState, useTransition, useEffect } from 'react';
 import { useToast } from '../hooks/useToast';
+import { ingredient } from '../../../../types/index';
+import { redirect } from 'next/navigation';
 
 interface RecipeCreateModalProps {
     isOpen: boolean;
@@ -13,9 +16,21 @@ export function RecipeCreateModal({ isOpen, onClose }: RecipeCreateModalProps) {
     const [formData, setFormData] = useState({
         name: '',
         url: '',
-        ingredients: ''
+        ingredients: [] as ingredient[]
     });
+    const [allIngredients, setAllIngredients] = useState<ingredient[]>([]);
+    const [inputValue, setInputValue] = useState('');
     const { show } = useToast();
+
+    useEffect(() => {
+        const fetchIngredients = async () => {
+            const result = await getAllIngredients();
+            if (result.data) {
+                setAllIngredients(result.data);
+            }
+        };
+        fetchIngredients();
+    }, []);
 
     if (!isOpen) return null;
 
@@ -24,23 +39,50 @@ export function RecipeCreateModal({ isOpen, onClose }: RecipeCreateModalProps) {
         const form = new FormData();
         form.append('name', formData.name);
         form.append('url', formData.url);
-        form.append('ingredients', formData.ingredients);
+        form.append('ingredients', JSON.stringify(formData.ingredients));
+        console.log("submitted:", form);
 
         startTransition(async () => {
+            console.log("開始");
             const result = await createRecipe(form);
             if(!result.success){
                 show('error', 'レシピの作成に失敗しました。', 4000);
+                console.log("失敗", result);
                 return;
             }
+            console.log("成功", result);
             show('success', 'レシピが作成されました。', 4000);
             onClose();
-            setFormData({ name: '', url: '', ingredients: '' });
+            setFormData({ name: '', url: '', ingredients: [] });
+            redirect("/");
         });
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleAddIngredient = () => {
+        if (!inputValue.trim()) return;
+        const trimmed = inputValue.trim();
+        const existing = allIngredients.find(ing => ing.name.toLowerCase() === trimmed.toLowerCase());
+        const ing = existing || { id: Date.now(), name: trimmed }; // 新規の場合は仮ID
+        if (!formData.ingredients.some(i => i.id === ing.id)) {
+            setFormData(prev => ({ ...prev, ingredients: [...prev.ingredients, ing] }));
+        }
+        setInputValue('');
+    };
+
+    const handleRemoveIngredient = (id: number) => {
+        setFormData(prev => ({ ...prev, ingredients: prev.ingredients.filter(i => i.id !== id) }));
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            handleAddIngredient();
+        }
     };
 
     return (
@@ -76,14 +118,28 @@ export function RecipeCreateModal({ isOpen, onClose }: RecipeCreateModalProps) {
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-2">材料</label>
-                        <textarea
-                            name="ingredients"
-                            value={formData.ingredients}
-                            onChange={handleInputChange}
+                        <label className="block text-sm font-medium mb-2">材料(ひらがな入力)</label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {formData.ingredients.map(ing => (
+                                <span key={ing.id} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center">
+                                    {ing.name}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveIngredient(ing.id)}
+                                        className="ml-1 text-blue-600 hover:text-blue-800"
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder="材料を入力してEnterまたは,で追加"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows={4}
-                            required
                         />
                     </div>
                     <div className="flex justify-end space-x-2">
