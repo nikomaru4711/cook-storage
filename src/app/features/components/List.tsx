@@ -1,23 +1,29 @@
 'use client';
 
 import type { Recipe } from '@/../types';
-import { createRecipe, updateRecipe, deleteRecipe } from '../recipe_crud.action';
+import { deleteRecipe } from '../recipe_crud.action';
 import { RecipeEditModal } from './RecipeEditModal';
 import { RecipeCreateModal } from './RecipeCreateModal';
 import { useState, useTransition } from 'react';
 import { Title } from './Title';
 import { Button} from './Button';
+import { useToast } from '../hooks/useToast';
 
-export function List({data}: {data: Recipe[]}) {
+export function List({data}: {data: Recipe[] | null}) {
     const [isCreating, setIsCreating] = useState(false);
     const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
     const [isPending, startTransition] = useTransition();
+    const {show} = useToast();
 
 
-
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (id: number) => {
         startTransition(async () => {
-            await deleteRecipe(id);
+            const result = await deleteRecipe(id);
+            if(!result.success){
+                show('error', 'レシピの削除に失敗しました。', 4000);
+                return;
+            }
+            show('success', 'レシピが削除されました。', 4000);
         });
     };
 
@@ -26,7 +32,7 @@ export function List({data}: {data: Recipe[]}) {
             <div className="flex justify-end">
                 <Button
                     onClick={() => setIsCreating(true)}
-                    text="新規レシピ追加"
+                    text="＋レシピ追加"
                     buttonType="confirm"
                 />
             </div>
@@ -36,7 +42,9 @@ export function List({data}: {data: Recipe[]}) {
                 size="large"
                 isUnderline={true}
             />
-            {data.map((recipe) => (
+            {data === null ? (<p>レシピが存在しません。</p>
+            ) : (
+            data.map((recipe) => (
                 // レシピのカード部分
                 <div key={recipe.id} className="recipe-item flex justify-between items-center p-4 border rounded-lg mb-4 shadow-sm">
                     <div className="recipe-content">
@@ -58,7 +66,8 @@ export function List({data}: {data: Recipe[]}) {
                         />
                     </div>
                 </div>
-            ))}
+            )))}
+
 
             {editingRecipe && (
                 <RecipeEditModal

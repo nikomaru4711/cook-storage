@@ -4,6 +4,7 @@
 import type { Recipe } from '@/../types';
 import { updateRecipe } from '../recipe_crud.action';
 import { useState, useTransition } from 'react';
+import { useToast } from '../hooks/useToast';
 
 interface RecipeEditModalProps {
     recipe: Recipe;
@@ -18,6 +19,7 @@ export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProp
         url: recipe.url || '',
         ingredients: recipe.ingredients
     });
+    const {show} = useToast();
 
     if (!isOpen) return null;
 
@@ -26,11 +28,22 @@ export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProp
         const form = new FormData();
         form.append('name', formData.name);
         form.append('url', formData.url);
-        form.append('ingredients', formData.ingredients);
+        if(formData.ingredients !== null){
+            formData.ingredients?.forEach((ingredient) => {
+                form.append('ingredients', ingredient)
+            });
+        }
+
 
         startTransition(async () => {
-            await updateRecipe(recipe.id, form);
+            const result = await updateRecipe(recipe.id, form);
+            if(!result.success){
+                show('error', 'レシピの更新に失敗しました。', 4000);
+                return;
+            }
+            show('success', 'レシピが更新されました。', 4000);
             onClose();
+            // setFormData({ name: '', url: '', ingredients: '' });
         });
     };
 
@@ -75,7 +88,7 @@ export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProp
                         <label className="block text-sm font-medium mb-2">材料</label>
                         <textarea
                             name="ingredients"
-                            value={formData.ingredients}
+                            value={formData.ingredients ?? ""}
                             onChange={handleInputChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             rows={4}

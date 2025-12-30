@@ -1,17 +1,22 @@
 import { BRAND_COLORS, BrandColor } from '@/../../types/colors';
 
 export type Recipe = {
-    id: string;
+    id: number;
     name: string;
-    url?: string;
-    ingredients: string;
+    url?: string | null;
     created_at: string;
 }
 
 export type ingredient = {
     id: string;
     name: string;
-    created_at: string;
+}
+
+export type Recipe_Ingredient = {
+    id : number;
+    recipe_id: number;
+    ingredient_id: number;
+    amount?: number | null;
 }
 
 export type TitleElement = {

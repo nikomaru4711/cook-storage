@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 /**
- * 料理登録用スキーマ
+ * レシピ用スキーマ
  */
-export const createRecipeSchema = z.object({
+export const recipeSchema = z.object({
     name: z
     .string()
     .min(1, '料理名は必須です')
@@ -11,8 +11,5 @@ export const createRecipeSchema = z.object({
     url: z
     .string()
     .url('有効なURLを入力してください')
-    .optional(),
-    ingredients: z
-    .string()
-    .max(500, '材料は500文字以内で入力してください')
+    .optional()
 })

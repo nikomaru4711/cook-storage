@@ -1,7 +1,7 @@
 'use client';
-
 import { createRecipe } from '../recipe_crud.action';
 import { useState, useTransition } from 'react';
+import { useToast } from '../hooks/useToast';
 
 interface RecipeCreateModalProps {
     isOpen: boolean;
@@ -15,6 +15,7 @@ export function RecipeCreateModal({ isOpen, onClose }: RecipeCreateModalProps) {
         url: '',
         ingredients: ''
     });
+    const { show } = useToast();
 
     if (!isOpen) return null;
 
@@ -26,7 +27,12 @@ export function RecipeCreateModal({ isOpen, onClose }: RecipeCreateModalProps) {
         form.append('ingredients', formData.ingredients);
 
         startTransition(async () => {
-            await createRecipe(form);
+            const result = await createRecipe(form);
+            if(!result.success){
+                show('error', 'レシピの作成に失敗しました。', 4000);
+                return;
+            }
+            show('success', 'レシピが作成されました。', 4000);
             onClose();
             setFormData({ name: '', url: '', ingredients: '' });
         });
