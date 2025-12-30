@@ -1,6 +1,8 @@
 "use server"
 import { createClient } from '../utils/supabase/client'
-
+import { createRecipeSchema } from './recipe_crud.schema'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 // レシピ一覧の取得
 export async function getAllRecopes() {
@@ -12,4 +14,68 @@ export async function getAllRecopes() {
     if (!data || error)
         throw new Error("データの取得に失敗しました。");
     return data;
+}
+
+// レシピの作成
+export async function createRecipe(formData: FormData) {
+    const supabase = createClient();
+
+    const name = formData.get('name') as string;
+    const url = formData.get('url') as string;
+    const ingredients = formData.get('ingredients') as string;
+
+    const validatedData = createRecipeSchema.parse({ name, url: url || undefined, ingredients });
+
+    const { data, error } = await supabase
+        .from('recipes')
+        .insert([validatedData])
+        .select();
+
+    if (error) {
+        throw new Error("レシピの作成に失敗しました。");
+    }
+
+    revalidatePath('/');
+    redirect('/');
+}
+
+// レシピの更新
+export async function updateRecipe(id: string, formData: FormData) {
+    const supabase = createClient();
+
+    const name = formData.get('name') as string;
+    const url = formData.get('url') as string;
+    const ingredients = formData.get('ingredients') as string;
+
+    const validatedData = createRecipeSchema.parse({ name, url: url || undefined, ingredients });
+
+    const { data, error } = await supabase
+        .from('recipes')
+        .update(validatedData)
+        .eq('id', id)
+        .select();
+
+    if (error) {
+        throw new Error("レシピの更新に失敗しました。");
+    }
+
+    revalidatePath('/');
+    redirect('/');
+}
+
+// レシピの削除
+export async function deleteRecipe(id: string) {
+    const supabase = createClient();
+
+    const { error } = await supabase
+        .from('recipes')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        throw new Error("レシピの削除に失敗しました。");
+    }
+
+    revalidatePath('/');
+    redirect('/');
 }
