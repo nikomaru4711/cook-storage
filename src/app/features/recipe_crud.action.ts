@@ -22,10 +22,20 @@ export async function createRecipe(formData: FormData) {
 
     const name = formData.get('name') as string;
     const url = formData.get('url') as string;
+
+    //ingredientsの取り扱いは今後修正する予定
     const ingredients = formData.get('ingredients') as string;
 
-    const validatedData = createRecipeSchema.parse({ name, url: url || undefined, ingredients });
+    const validatedData = createRecipeSchema.safeParse({ 
+        name, 
+        url: url || undefined, 
+        ingredients 
+    });
 
+    if (!validatedData.success) {
+        // ここでエラーメッセージを返却する処理などを記述
+        throw new Error("入力内容が正しくありません。");
+    }
     const { data, error } = await supabase
         .from('recipes')
         .insert([validatedData])
@@ -49,6 +59,7 @@ export async function updateRecipe(id: string, formData: FormData) {
 
     const validatedData = createRecipeSchema.parse({ name, url: url || undefined, ingredients });
 
+    // 現在ingredientsの保存方法が適切でないためエラーが発生する。
     const { data, error } = await supabase
         .from('recipes')
         .update(validatedData)
