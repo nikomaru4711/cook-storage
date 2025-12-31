@@ -2,7 +2,6 @@
 import { createClient } from '../utils/supabase/client'
 import { recipeSchema } from './recipe_crud.schema'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 
 // Recipesテーブルの情報を取得する。
 export async function getAllRecipes() {

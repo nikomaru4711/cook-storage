@@ -2,16 +2,16 @@
 import { createRecipe } from '../recipe_crud.action';
 import { getAllIngredients } from '../ingredient_crud.action';
 import { useState, useTransition, useEffect } from 'react';
-import { useToast } from '../hooks/useToast';
-import { ingredient } from '../../../../types/index';
-import { redirect } from 'next/navigation';
+import { ingredient, ToastElement } from '@/../types/index';
 
 interface RecipeCreateModalProps {
     isOpen: boolean;
     onClose: () => void;
+    show: (type: ToastElement['type'], text: string, showingtime: number) => void;
+    getData: () => void;
 }
 
-export function RecipeCreateModal({ isOpen, onClose }: RecipeCreateModalProps) {
+export function RecipeCreateModal({ isOpen, onClose, show, getData }: RecipeCreateModalProps) {
     const [isPending, startTransition] = useTransition();
     const [formData, setFormData] = useState({
         name: '',
@@ -20,7 +20,6 @@ export function RecipeCreateModal({ isOpen, onClose }: RecipeCreateModalProps) {
     });
     const [allIngredients, setAllIngredients] = useState<ingredient[]>([]);
     const [inputValue, setInputValue] = useState('');
-    const { show } = useToast();
 
     useEffect(() => {
         const fetchIngredients = async () => {
@@ -54,7 +53,7 @@ export function RecipeCreateModal({ isOpen, onClose }: RecipeCreateModalProps) {
             show('success', 'レシピが作成されました。', 4000);
             onClose();
             setFormData({ name: '', url: '', ingredients: [] });
-            redirect("/");
+            await getData();
         });
     };
 

@@ -6,15 +6,19 @@ import { RecipeEditModal } from './RecipeEditModal';
 import { RecipeCreateModal } from './RecipeCreateModal';
 import { useState, useTransition } from 'react';
 import { Title } from './Title';
-import { Button} from './Button';
-import { useToast } from '../hooks/useToast';
-import { redirect } from 'next/navigation';
+import { Button } from './Button';
+import { ToastElement } from '@/../types';
 
-export function List({data}: {data: Recipe[]}) {
+interface ListProps {
+    data: Recipe[];
+    show: (type: ToastElement['type'], text: string, showingtime: number) => void;
+    getData: () => void;
+}
+
+export function List({data, show, getData}: ListProps) {
     const [isCreating, setIsCreating] = useState(false);
     const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
     const [isPending, startTransition] = useTransition();
-    const {show} = useToast();
 
 
     const handleDelete = async (id: number) => {
@@ -25,7 +29,7 @@ export function List({data}: {data: Recipe[]}) {
                 return;
             }
             show('success', 'レシピが削除されました。', 4000);
-            redirect("/");
+            await getData();
         });
     };
 
@@ -52,7 +56,7 @@ export function List({data}: {data: Recipe[]}) {
                     <div className="recipe-content">
                         <h3 className="text-lg font-semibold">{recipe.name}</h3>
                         {recipe.url && <a href={recipe.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Recipe Link</a>}
-                        <small className="text-gray-400">Created at: {new Date(recipe.created_at).toLocaleDateString()}</small>
+                        {/* <small className="text-gray-400">Created at: {new Date(recipe.created_at).toLocaleDateString()}</small> */}
                     </div>
                     <div className="actions flex gap-2">
                         <Button
@@ -75,12 +79,16 @@ export function List({data}: {data: Recipe[]}) {
                     recipe={editingRecipe}
                     isOpen={!!editingRecipe}
                     onClose={() => setEditingRecipe(null)}
+                    show={show}
+                    getData={getData}
                 />
             )}
 
             <RecipeCreateModal
                 isOpen={isCreating}
                 onClose={() => setIsCreating(false)}
+                show={show}
+                getData={getData}
             />
         </div>
     );

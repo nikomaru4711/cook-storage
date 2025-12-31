@@ -5,17 +5,17 @@ import type { Recipe } from '@/../types';
 import { updateRecipe, getRecipeWithIngredients } from '../recipe_crud.action';
 import { getAllIngredients } from '../ingredient_crud.action';
 import { useState, useTransition, useEffect } from 'react';
-import { useToast } from '../hooks/useToast';
-import { ingredient } from '../../../../types/index';
-import { redirect } from 'next/navigation';
+import { ingredient, ToastElement } from '@/../types/index';
 
 interface RecipeEditModalProps {
     recipe: Recipe;
     isOpen: boolean;
     onClose: () => void;
+    show: (type: ToastElement['type'], text: string, showingtime: number) => void;
+    getData: () => void;
 }
 
-export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProps) {
+export function RecipeEditModal({ recipe, isOpen, onClose, show, getData }: RecipeEditModalProps) {
     const [isPending, startTransition] = useTransition();
     const [formData, setFormData] = useState({
         name: recipe.name,
@@ -24,7 +24,6 @@ export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProp
     });
     const [allIngredients, setAllIngredients] = useState<ingredient[]>([]);
     const [inputValue, setInputValue] = useState('');
-    const {show} = useToast();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -63,7 +62,7 @@ export function RecipeEditModal({ recipe, isOpen, onClose }: RecipeEditModalProp
             }
             show('success', 'レシピが更新されました。', 4000);
             onClose();
-            redirect("/");
+            await getData();
         });
     };
 
