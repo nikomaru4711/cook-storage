@@ -45,7 +45,7 @@ export function List({data, show, getData}: ListProps) {
                 <Button
                     onClick={() => setIsCreating(true)}
                     text="＋レシピ追加"
-                    buttonType="confirm"
+                    buttonColorType="confirm"
                 />
             </div>
             <Title
@@ -69,12 +69,12 @@ export function List({data, show, getData}: ListProps) {
                             <Button
                                 onClick={() => setEditingRecipe(recipe)}
                                 text="編集"
-                                buttonType="confirm"
+                                buttonColorType="confirm"
                             />
                             <Button
                                 onClick={() => handleDelete(recipe.id)}
                                 text="削除"
-                                buttonType="delete"
+                                buttonColorType="delete"
                             />
                         </div>
                     </div>
