@@ -1,5 +1,6 @@
 "use client"
 import { List } from './features/components/List';
+import { IngredientSearch } from './features/components/IngredientSearch';
 import { getAllRecipes } from './features/recipe_crud.action';
 import { ToastTest } from './features/components/ToastTest';
 import { ToastContainer } from '@/app/features/components/Toast';
@@ -32,12 +33,12 @@ export default function Home() {
 
   return (
     <div>
-      <List 
+      <List
         data={recipes}
         show={show}
         getData={fetchData}
        />
-      <p>材料で検索</p>
+      <IngredientSearch />
       {/* <ToastTest /> */}
       <ToastContainer toasts={toasts} remove={remove} />
 

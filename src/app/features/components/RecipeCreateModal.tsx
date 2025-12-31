@@ -66,14 +66,14 @@ export function RecipeCreateModal({ isOpen, onClose, show, getData }: RecipeCrea
         if (!inputValue.trim()) return;
         const trimmed = inputValue.trim();
         const existing = allIngredients.find(ing => ing.name.toLowerCase() === trimmed.toLowerCase());
-        const ing = existing || { id: Date.now(), name: trimmed }; // 新規の場合は仮ID
+        const ing = existing || { id: (Date.now()).toString(), name: trimmed }; // 新規の場合は仮ID
         if (!formData.ingredients.some(i => i.id === ing.id)) {
             setFormData(prev => ({ ...prev, ingredients: [...prev.ingredients, ing] }));
         }
         setInputValue('');
     };
 
-    const handleRemoveIngredient = (id: number) => {
+    const handleRemoveIngredient = (id: string) => {
         setFormData(prev => ({ ...prev, ingredients: prev.ingredients.filter(i => i.id !== id) }));
     };
 

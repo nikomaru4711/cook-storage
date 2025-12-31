@@ -27,7 +27,7 @@ export function List({data, show, getData}: ListProps) {
     const paginatedData = data.slice(startIndex, startIndex + itemsPerPage);
 
 
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (id: string) => {
         startTransition(async () => {
             const result = await deleteRecipe(id);
             if(!result.success){

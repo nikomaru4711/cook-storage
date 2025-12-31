@@ -2,6 +2,7 @@
 import { createClient } from '../utils/supabase/client'
 import { recipeSchema } from './recipe_crud.schema'
 import { revalidatePath } from 'next/cache'
+import type { Recipe } from '@/../../types'
 
 // Recipesテーブルの情報を取得する。
 export async function getAllRecipes() {
@@ -16,7 +17,7 @@ export async function getAllRecipes() {
 }
 
 // レシピと材料を取得する。
-export async function getRecipeWithIngredients(id: number) {
+export async function getRecipeWithIngredients(id: string) {
     const supabase = createClient();
     const { data, error } = await supabase
         .from('recipes')
@@ -97,7 +98,7 @@ export async function createRecipe(formData: FormData) {
 }
 
 // レシピの更新
-export async function updateRecipe(id: number, formData: FormData) {
+export async function updateRecipe(id: string, formData: FormData) {
     const supabase = createClient();
     const name = formData.get('name') as string;
     const url = formData.get('url') as string;
@@ -164,7 +165,7 @@ export async function updateRecipe(id: number, formData: FormData) {
 }
 
 // レシピの削除
-export async function deleteRecipe(id: number) {
+export async function deleteRecipe(id: string) {
     const supabase = createClient();
 
     const { error } = await supabase
@@ -177,4 +178,32 @@ export async function deleteRecipe(id: number) {
 
     revalidatePath('/');
     return {success: true, error: null};
+}
+
+// 材料からレシピを検索
+export async function searchRecipesByIngredient(ingredientId: string): Promise<{data: Recipe[], error: string | null}> {
+    console.log("材料からレシピを検索します");
+    const supabase = createClient();
+    const { data, error } = await supabase
+        .from('recipe_ingredients')
+        .select(`
+            recipes (
+                id,
+                name,
+                url,
+                created_at
+            )
+        `)
+        .eq('ingredient_id', ingredientId);
+    if (!data || error){
+        console.log("データ取得に失敗");
+        return {data: [], error: "データの取得に失敗しました。"};
+    }
+
+
+
+    // data は Recipe_Ingredient の配列で、各要素に recipes オブジェクトがある
+    const recipes = data.map(item => item.recipes).filter(recipe => recipe !== null) as Recipe[];
+    console.log("データ取得に成功：", recipes);
+    return {data: recipes, error: null};
 }
