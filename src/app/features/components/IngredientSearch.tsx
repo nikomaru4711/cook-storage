@@ -3,13 +3,16 @@
 import { useState, useEffect } from 'react';
 import type { Recipe, ingredient } from '@/../../types';
 import { getAllIngredients } from '../ingredient_crud.action';
-import { searchRecipesByIngredient } from '../recipe_crud.action';
+import { searchRecipesByIngredient, searchRecipesByIngredientName } from '../recipe_crud.action';
 import { Title } from './Title';
 import { Button } from './Button';
+import { BrandColor } from '@/../../types/colors';
 
 export function IngredientSearch() {
+    ///※レシピ一覧にてデータ追加された場合にタグを更新(または取得)しなければいけない
     const [ingredients, setIngredients] = useState<ingredient[]>([]);
     const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
+    const [searchText, setSearchText] = useState<string>('');
     const [searchResults, setSearchResults] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -25,9 +28,17 @@ export function IngredientSearch() {
 
     const handleSearch = async () => {
         console.log("選択された材料のID:", selectedIngredientId);
-        if (!selectedIngredientId) return;
+        console.log("検索テキスト:", searchText);
         setLoading(true);
-        const result = await searchRecipesByIngredient(selectedIngredientId);
+        let result;
+        if (searchText.trim()) {
+            result = await searchRecipesByIngredientName(searchText.trim());
+        } else if (selectedIngredientId) {
+            result = await searchRecipesByIngredient(selectedIngredientId);
+        } else {
+            setLoading(false);
+            return;
+        }
         setLoading(false);
         if (result.data) {
             setSearchResults(result.data);
@@ -44,28 +55,43 @@ export function IngredientSearch() {
                 size="large"
                 isUnderline={true}
             />
-            <div className="search-controls flex items-center gap-4 mb-4">
+            テキストまたはドロップダウンに材料を入力してください
+            <div className="flex justify-center items-center gap-4 mb-4">
+                <input
+                    type="text"
+                    placeholder="材料名を入力"
+                    value={searchText}
+                    onChange={(e) => {
+                        setSearchText(e.target.value);
+                        if (e.target.value.trim()) {
+                            setSelectedIngredientId(null);
+                        }
+                    }}
+                    className="p-2 w-1/2 border rounded"
+                />
                 <select
                     value={selectedIngredientId || ''}
                     onChange={(e) => {
                         console.log("選択：", e.target.value);
-                        setSelectedIngredientId(e.target.value || null)
+                        setSelectedIngredientId(e.target.value || null);
+                        if (e.target.value) {
+                            setSearchText('');
+                        }
                     }}
-                    className="p-2 border rounded"
+                    className="p-3 w-1/2 border rounded"
                 >
-                    <option value="">材料を選択してください</option>
+                    <option value="">または材料を選択</option>
                     {ingredients.map((ing) => (
                         <option key={ing.id} value={ing.id}>
                             {ing.name}
                         </option>
                     ))}
                 </select>
-                <Button
-                    onClick={handleSearch}
-                    text="検索"
-                    buttonColorType="confirm"
-                />
             </div>
+            <button onClick={handleSearch} className="w-full mb-3 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                検索
+            </button>
+
             {loading && <p>検索中...</p>}
             <div className="search-results">
                 {searchResults.length === 0 && !loading ? (

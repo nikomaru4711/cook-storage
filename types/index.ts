@@ -1,4 +1,4 @@
-import { BRAND_COLORS, BrandColor } from '@/../../types/colors';
+import { BrandColor } from '@/../../types/colors';
 
 export type Recipe = {
     id: string;

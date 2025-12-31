@@ -196,7 +196,6 @@ export async function searchRecipesByIngredient(ingredientId: string): Promise<{
         `)
         .eq('ingredient_id', ingredientId);
     if (!data || error){
-        console.log("データ取得に失敗");
         return {data: [], error: "データの取得に失敗しました。"};
     }
 
@@ -204,6 +203,31 @@ export async function searchRecipesByIngredient(ingredientId: string): Promise<{
 
     // data は Recipe_Ingredient の配列で、各要素に recipes オブジェクトがある
     const recipes = data.map(item => item.recipes).filter(recipe => recipe !== null) as Recipe[];
-    console.log("データ取得に成功：", recipes);
+    return {data: recipes, error: null};
+}
+
+// 材料名からレシピを検索
+export async function searchRecipesByIngredientName(ingredientName: string): Promise<{data: Recipe[], error: string | null}> {
+    console.log("材料名からレシピを検索します");
+    const supabase = createClient();
+    const { data, error } = await supabase
+        .from('recipe_ingredients')
+        .select(`
+            recipes!inner (
+                id,
+                name,
+                url,
+                created_at
+            ),
+            ingredients!inner (
+                name
+            )
+        `)
+        .eq('ingredients.name', ingredientName);
+    if (!data || error){
+        return {data: [], error: "データの取得に失敗しました。"};
+    }
+
+    const recipes = data.map(item => item.recipes).filter(recipe => recipe !== null) as Recipe[];
     return {data: recipes, error: null};
 }
