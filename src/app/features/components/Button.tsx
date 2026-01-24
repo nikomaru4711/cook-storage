@@ -1,7 +1,8 @@
 import * as React from "react";
 import { cn } from "@/../lib/utils";
 
-// ボタン独自のプロパティを定義
+//独自のボタンコンポーネント
+//buttonColorType: ボタンの色の種類を指定するプロパティ。'normal', 'confirm', 'delete', カスタムカラーコード('#RRGGBB'形式), または'none'を指定可能。
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   buttonColorType: 'normal' | 'confirm' | 'delete' | `#${string}` | 'none';
@@ -26,7 +27,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           className
         )}
         ref={ref}
-        // ローディング中もクリックできないように disabled を制御
         disabled={disabled}
         {...props}
       >
