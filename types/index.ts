@@ -31,6 +31,7 @@ export type TitleElement = {
 export type ButtonElement = {
     onClick: () => void;
     text: string;
+    className?: string;
     buttonColorType: 'normal' | 'confirm' | 'delete' | `#${string}`;
 }
 
