@@ -1,25 +1,40 @@
-import { ButtonElement } from '@/../types';
+import * as React from "react";
+import { cn } from "@/../lib/utils";
 
-export function Button({ onClick, text, customClass, buttonColorType }: ButtonElement) {
+// ボタン独自のプロパティを定義
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  buttonColorType: 'normal' | 'confirm' | 'delete' | `#${string}` | 'none';
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ onClick, className, children, disabled, ...props }, ref) => {
     const Styles = {
         normal: 'px-3 py-1 bg-gray-500 text-black rounded hover:bg-gray-500',
         confirm: 'px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600',
         delete: 'px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50',
+        none: ''
     };
 
-    // buttonColorType が Styles のキー（normal, confirm, delete）に含まれているか判定
-    const isPresetColor = buttonColorType in Styles;
-
+    const isPresetColor = props.buttonColorType in Styles;
     return (
-        <button 
-            onClick={onClick} 
-            // プリセットの場合はクラスを適用、そうでない場合は共通スタイルのみ適用
-            // className={isPresetColor ? Styles[buttonColorType as keyof typeof Styles] : `px-3 py-1 text-white rounded ${customClass || ''}`}
-            className={`px-3 py-1 rounded ${isPresetColor ? Styles[buttonColorType as keyof typeof Styles] : ``}  ${customClass || ''}`}
-            // カラーコードが渡された場合のみ、style属性で背景色を指定
-            style={!isPresetColor ? { backgroundColor: buttonColorType } : {}}
-        >
-            {text}
-        </button>
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          `px-3 py-1 rounded font-medium ${isPresetColor ? Styles[props.buttonColorType as keyof typeof Styles] : ``}`,
+          className
+        )}
+        ref={ref}
+        // ローディング中もクリックできないように disabled を制御
+        disabled={disabled}
+        {...props}
+      >
+        {children}
+      </button>
     );
-}
+  }
+);
+Button.displayName = "Button";
+
+export { Button };
