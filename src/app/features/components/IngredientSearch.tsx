@@ -8,23 +8,13 @@ import { Title } from './Title';
 import { Button } from './Button';
 import { BrandColor } from '@/../../types/colors';
 
-export function IngredientSearch() {
+export function IngredientSearch({ingredients}: {ingredients: ingredient[]}) {
     ///※レシピ一覧にてデータ追加された場合にタグを更新(または取得)しなければいけない
-    const [ingredients, setIngredients] = useState<ingredient[]>([]);
     const [selectedIngredientId, setSelectedIngredientId] = useState<string | null>(null);
     const [searchText, setSearchText] = useState<string>('');
     const [searchResults, setSearchResults] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchIngredients = async () => {
-            const result = await getAllIngredients();
-            if (result.data) {
-                setIngredients(result.data);
-            }
-        };
-        fetchIngredients();
-    }, []);
 
     const handleSearch = async () => {
         console.log("選択された材料のID:", selectedIngredientId);
