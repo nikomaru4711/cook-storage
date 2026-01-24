@@ -44,9 +44,10 @@ export function List({data, show, getData}: ListProps) {
             <div className="flex justify-end">
                 <Button
                     onClick={() => setIsCreating(true)}
-                    text="＋レシピ追加"
                     buttonColorType="confirm"
-                />
+                >
+                    ＋レシピ追加
+                </Button>
             </div>
             <Title
                 text="レシピ一覧"
@@ -68,14 +69,16 @@ export function List({data, show, getData}: ListProps) {
                         <div className="actions flex gap-2">
                             <Button
                                 onClick={() => setEditingRecipe(recipe)}
-                                text="編集"
                                 buttonColorType="confirm"
-                            />
+                            >
+                                編集
+                            </Button>
                             <Button
                                 onClick={() => handleDelete(recipe.id)}
-                                text="削除"
                                 buttonColorType="delete"
-                            />
+                            >
+                                削除
+                            </Button>
                         </div>
                     </div>
                 )))}
@@ -83,21 +86,23 @@ export function List({data, show, getData}: ListProps) {
 
             {totalPages > 1 && (
                 <div className="pagination flex justify-center gap-2 mt-4">
-                    <button
+                    <Button
                         onClick={() => setCurrentPage(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+                        className="px-4 py-2 disabled:bg-gray-300"
+                        buttonColorType='confirm'
                     >
                         前へ
-                    </button>
+                    </Button>
                     <span>{currentPage} / {totalPages}</span>
-                    <button
+                    <Button
                         onClick={() => setCurrentPage(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+                        className="px-4 py-2 disabled:bg-gray-300"
+                        buttonColorType='confirm'
                     >
                         次へ
-                    </button>
+                    </Button>
                 </div>
             )}
 

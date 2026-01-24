@@ -78,9 +78,14 @@ export function IngredientSearch({ingredients}: {ingredients: ingredient[]}) {
                     ))}
                 </select>
             </div>
-            <button onClick={handleSearch} className="w-full mb-3 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                検索
-            </button>
+
+            <Button 
+                onClick={handleSearch} 
+                className='w-full mb-3'
+                buttonColorType="confirm"
+            >
+                {loading ? '検索中...' : '検索'}
+            </Button>
 
             {loading && <p>検索中...</p>}
             <div className="search-results">

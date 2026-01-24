@@ -3,6 +3,7 @@ import { createRecipe } from '../recipe_crud.action';
 import { getAllIngredients } from '../ingredient_crud.action';
 import { useState, useTransition, useEffect } from 'react';
 import { ingredient, ToastElement } from '@/../types/index';
+import { Button } from './Button';
 
 interface RecipeCreateModalProps {
     isOpen: boolean;
@@ -122,13 +123,14 @@ export function RecipeCreateModal({ isOpen, onClose, show, getData }: RecipeCrea
                             {formData.ingredients.map(ing => (
                                 <span key={ing.id} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center">
                                     {ing.name}
-                                    <button
+                                    <Button
                                         type="button"
                                         onClick={() => handleRemoveIngredient(ing.id)}
                                         className="ml-1 text-blue-600 hover:text-blue-800"
+                                        buttonColorType="none"
                                     >
                                         ×
-                                    </button>
+                                    </Button>
                                 </span>
                             ))}
                         </div>
@@ -142,21 +144,23 @@ export function RecipeCreateModal({ isOpen, onClose, show, getData }: RecipeCrea
                         />
                     </div>
                     <div className="flex justify-end space-x-2">
-                        <button
+                        <Button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                            className="px-4 py-2"
                             disabled={isPending}
+                            buttonColorType='delete'
                         >
                             キャンセル
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+                            className="px-4 py-2 disabled:opacity-50"
                             disabled={isPending}
+                            buttonColorType='confirm'
                         >
                             {isPending ? '作成中...' : '作成'}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>
