@@ -9,7 +9,7 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ onClick, className, children, disabled, ...props }, ref) => {
+  ({ onClick, className, children, disabled, buttonColorType, ...props }, ref) => {
     const Styles = {
         normal: 'px-3 py-1 bg-gray-500 text-black rounded hover:bg-gray-500',
         confirm: 'px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600',
@@ -17,13 +17,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         none: ''
     };
 
-    const isPresetColor = props.buttonColorType in Styles;
+    const isPresetColor = buttonColorType in Styles;
     return (
       <button
         type="button"
         onClick={onClick}
         className={cn(
-          `px-3 py-1 rounded font-medium ${isPresetColor ? Styles[props.buttonColorType as keyof typeof Styles] : ``}`,
+          `px-3 py-1 rounded font-medium ${isPresetColor ? Styles[buttonColorType as keyof typeof Styles] : ``}`,
           className
         )}
         ref={ref}
