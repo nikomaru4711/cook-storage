@@ -42,7 +42,7 @@ export default function Home() {
   //最初に一度だけデータ取得
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   return (
     <div>
