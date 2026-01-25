@@ -2,7 +2,6 @@
 import { List } from './features/components/List';
 import { IngredientSearch } from './features/components/IngredientSearch';
 import { getAllRecipes } from './features/recipe_crud.action';
-import { ToastTest } from './features/components/ToastTest';
 import { ToastContainer } from '@/app/features/components/Toast';
 import { useToast } from './features/hooks/useToast';
 import { useCallback, useEffect, useState } from 'react';
