@@ -39,10 +39,10 @@ export default function Home() {
     }
   },[show]);
 
-  //最初に一度だけデータ取得
+  //データ取得
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <div>
